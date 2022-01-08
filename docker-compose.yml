@@ -1,0 +1,30 @@
+# https://developers.eventstore.com/server/v20.10/docs/installation/docker.html#use-docker-compose
+version: "3.9"
+
+services:
+
+  postgres:
+    image: postgres:14.1
+    hostname: postgres
+    ports:
+      - "7432:5432"
+    volumes:
+      - postgres_data_demo:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: sqlhydra_demo
+      POSTGRES_USER: db_user
+      POSTGRES_PASSWORD: secret
+
+  sqlhydra-demo:
+    build: .
+    env_file:
+      - ./local.env
+    hostname: sqlhydra-demo
+    environment:
+      RAMBLER_HOST: postgres
+      RAMBLER_PORT: 5432
+      DB_HOST: postgres
+      DB_PORT: 5432
+
+volumes:
+  postgres_data_demo:

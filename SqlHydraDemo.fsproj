@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <WarnOn>3390;$(WarnOn)</WarnOn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="src/generated/DemoDatabaseTypes.fs" />
+    <Compile Include="src\Env.fs" />
+    <Compile Include="src/Database.fs" />
+    <Compile Include="src/Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Npgsql" Version="6.0.1" />
+    <PackageReference Update="FSharp.Core" Version="5.0.2" />
+    <PackageReference Include="SqlHydra.Query" Version="0.630.0" />
+    <PackageReference Include="Thoth.Json.Net" Version="8.0.0" />
+  </ItemGroup>
+</Project>

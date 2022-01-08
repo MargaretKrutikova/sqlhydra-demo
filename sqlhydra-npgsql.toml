@@ -1,0 +1,10 @@
+[general]
+connection = "Server=localhost;Port=7432;Database=sqlhydra_demo;User Id=db_user;Password=secret;"
+output = "generated/DemoDatabaseTypes.fs"
+namespace = "DemoStuff"
+cli_mutable = true
+[readers]
+reader_type = "Npgsql.NpgsqlDataReader"
+[filters]
+include = [ "demo_stuff/*" ]
+exclude = []

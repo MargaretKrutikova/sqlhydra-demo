@@ -1,0 +1,12 @@
+{
+  "driver": "postgresql",
+  "protocol": "tcp",
+  "host": "localhost",
+  "port": 7432,
+  "user": "db_user",
+  "password": "secret",
+  "database": "sqlhydra_demo",
+  "schema": "public",
+  "directory": "migrations",
+  "table": "demo_stuff"
+}
