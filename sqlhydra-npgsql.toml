@@ -1,6 +1,6 @@
 [general]
 connection = "Server=localhost;Port=7432;Database=sqlhydra_demo;User Id=db_user;Password=secret;"
-output = "generated/DemoDatabaseTypes.fs"
+output = "src/generated/DemoDatabaseTypes.fs"
 namespace = "DemoStuff"
 cli_mutable = true
 [readers]

@@ -12,7 +12,7 @@ node_modules/
 *.sln.DotSettings.user
 .fake
 .ionide
-src/**/bin/
+**/bin/
 obj/
 
 #aws
@@ -30,7 +30,3 @@ certs/
 # rambler
 **/rambler
 **/rambler_v*
-
-# test
-activity.txt
-tokens.txt

@@ -17,11 +17,20 @@ What problems are we solving here? Well working with databases can be quite a pa
 - Your `sql` queries won't be out of sync since you will get compile-time errors as soon as you re-run the type generator after the schema is updated,
 - It is light-weight and doesn't support any relationship mapping, so it is much more transparent (not a real ORM).
 
+The ability to instantly keep in sync your database schema and the source code is especially crucial in the beginning of the project when the names change often, fields are added and tables are removed.
+
 ## Overview
 
 This demo project is using a `dotnet` tool [`SqlHydra.Npgsql`](https://github.com/JordanMarr/SqlHydra/#sqlhydranpgsql-) for type generation from a `postgres` database and a `NuGet` package [`SqlHydra.Query`](https://github.com/JordanMarr/SqlHydra/#sqlhydraquery-) for building `sql` queries using `F#` computation expressions and the generated types. The two packages are working in synergy and provide a light-weight data-access layer.
 
-Apart from `SqlHydra`, the project includes a full-blown setup for running database migrations with `rambler`, `Make` commands for building and running other nifty tasks and running everything in `docker` containers to show how to integrate `SqlHydra` in a real-world scenario.
+Apart from `SqlHydra`, the project includes a full-blown setup for running database migrations with `rambler`, `Make` commands for building and running other nifty tasks and running everything in `docker` containers to show how to integrate `SqlHydra` in a real-world scenario. The database and schema are created when the `docker` container is spun up locally, see [running locally](#running-locally).
+
+The app itself is a console app consisting of the following files:
+
+- [`generated/DemoDatabaseTypes`](./src/generated/DemoDatabaseTypes.fs) - generated `F#` types from the tables in the database `sqlhydra_demo` in schema `demo_stuff`,
+- [`Database.fs`](./src/Database.fs) - light-weight data-access layer for CRUD operations against the db with the generated types and computation expressions from `SqlHydra.Query`,
+- [`Env.fs`](./src/Env.fs) - reading env variables with database config values, can safely skip this,
+- [`Program.fs`](./src/Program.fs) - example creating database connection with `SqlHydra.Query` and using the data access layer to insert and read database rows.
 
 ### Type generation
 
@@ -42,6 +51,10 @@ make migrations
 
 This command will first apply `rambler` migrations and then run `sqlhydra-npgsql` generator on the freshly updated database.
 
+### Docker setup
+
+`Dockerfile` builds the console app and runs `docker-entrypoint.sh` which in turn runs `rambler` migrations and runs the app. `docker-compose` will spin up a instance of `postgres` and create the necessary database and run the console app.
+
 ## Running locally
 
 ### Spin up docker containers
@@ -52,12 +65,20 @@ Make sure `docker` is running locally and run:
 docker-compose up -d
 ```
 
+A new `postgres` instance, running on port 7432 (you might already have `postgres` on 5432, and even 6432) is created with a database `sqlhydra_demo` and a schema `demo_stuff` with one table `thing`.
+
 ### Run outside docker
 
-For local development you can run the demo application outside docker
+For local development you can run the demo application outside docker with `make run` or `make run-watch`.
 
-### Makefile
+### Example workflow
 
-Following `make` commands are available:
+Let's make some changes to the db schema and see how to re-generate types:
 
-- `make migrations` - will pull down `rambler`, run migrations and re-generate database types.
+- make changes to [`20211218-1400_create_things_table.sql`](./migrations/20211218-1400_create_things_table.sql) and change the name or type of any field,
+- revert migrations with `make reverse-migrations` to undo all migrations,
+- run `make migrations`,
+- run `make run`,
+- observe compile-time errors 💥
+
+OBS: alternatively run `make bounce-migrations` to both revert all migrations and apply them again.

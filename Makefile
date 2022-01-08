@@ -1,6 +1,9 @@
 OS=darwin-10.6
 RAMBLER_VERSION=5.4.0
 
+include local.env
+export $(shell sed 's/=.*//' local.env)
+
 rambler_v${RAMBLER_VERSION}:
 	curl --compressed -#Lo rambler_v${RAMBLER_VERSION} \
 		https://github.com/elwinar/rambler/releases/download/v${RAMBLER_VERSION}/rambler-${OS}-amd64
