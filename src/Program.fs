@@ -4,27 +4,21 @@ open Npgsql
 open SqlHydra.Query
 open SqlHydraDemo
 
-let createDbConnectionString
-    ({ dbUsername = username
-       dbPassword = password
-       dbName = dbName
-       dbHost = host
-       dbPort = dbPort })
-    =
-    $"Server=%s{host};Port=%d{dbPort};Database={dbName};User Id=%s{username};Password=%s{password};"
+module QueryContext =
+    let private createDbConnectionString (config: Config) =
+        $"Server=%s{config.dbHost};Port=%d{config.dbPort};Database={config.dbName};User Id=%s{config.dbUsername};Password=%s{config.dbPassword};"
 
-let createContext (config: Config) =
-    let connectionString = createDbConnectionString config
+    let create (config: Config) =
+        let connectionString = createDbConnectionString config
+        let compiler = SqlKata.Compilers.PostgresCompiler()
 
-    let compiler = SqlKata.Compilers.PostgresCompiler()
+        let dbConnection =
+            new NpgsqlConnection(connectionString) :> DbConnection
 
-    let dbConnection =
-        new NpgsqlConnection(connectionString) :> DbConnection
-
-    async {
-        do! dbConnection.OpenAsync() |> Async.AwaitTask
-        return new QueryContext(dbConnection, compiler)
-    }
+        async {
+            do! dbConnection.OpenAsync() |> Async.AwaitTask
+            return new QueryContext(dbConnection, compiler)
+        }
 
 module Program =
     let config =
@@ -35,17 +29,26 @@ module Program =
     [<EntryPoint>]
     let main _ =
         async {
-            let! context = createContext config
+            let! context = QueryContext.create config
 
-            let! _ =
-                Database.Things.insertThing
-                    context
-                    ({ id = System.Guid.NewGuid().ToString()
-                       name = "Thing"
-                       owner = "asd"
-                       age = 213 }: demo_stuff.thing)
+            let id = System.Guid.NewGuid().ToString()
 
+            let newThing: demo_stuff.thing =
+                { id = id
+                  name = "Thing"
+                  owner = "asd"
+                  age = 213
+                  created_at = System.DateTime.UtcNow }
+
+            do!
+                Database.Things.insertThing context newThing
                 |> Async.AwaitTask
+                |> Async.Ignore
+
+            do!
+                Database.Things.updateThing context { newThing with name = "Göttans" }
+                |> Async.AwaitTask
+                |> Async.Ignore
 
             let! things =
                 Database.Things.getThings context

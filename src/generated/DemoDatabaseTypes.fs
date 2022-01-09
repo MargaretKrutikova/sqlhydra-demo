@@ -34,18 +34,21 @@ module demo_stuff =
         { id: string
           name: string
           owner: string
-          age: int }
+          age: int
+          created_at: System.DateTime }
 
     type thingReader(reader: Npgsql.NpgsqlDataReader, getOrdinal) =
         member __.id = RequiredColumn(reader, getOrdinal, reader.GetString, "id")
         member __.name = RequiredColumn(reader, getOrdinal, reader.GetString, "name")
         member __.owner = RequiredColumn(reader, getOrdinal, reader.GetString, "owner")
         member __.age = RequiredColumn(reader, getOrdinal, reader.GetInt32, "age")
+        member __.created_at = RequiredColumn(reader, getOrdinal, reader.GetDateTime, "created_at")
         member __.Read() =
             { id = __.id.Read()
               name = __.name.Read()
               owner = __.owner.Read()
-              age = __.age.Read() }
+              age = __.age.Read()
+              created_at = __.created_at.Read() }
 
         member __.ReadIfNotNull() =
             if __.id.IsNull() then None else Some(__.Read())
@@ -63,7 +66,7 @@ type HydraReader(reader: Npgsql.NpgsqlDataReader) =
         accFieldCount <- accFieldCount + fieldCount
         fun col -> dictionary.Item col
         
-    let lazydemo_stuffthing = lazy (demo_stuff.thingReader (reader, buildGetOrdinal 4))
+    let lazydemo_stuffthing = lazy (demo_stuff.thingReader (reader, buildGetOrdinal 5))
     member __.``demo_stuff.thing`` = lazydemo_stuffthing.Value
     member private __.AccFieldCount with get () = accFieldCount and set (value) = accFieldCount <- value
     member private __.GetReaderByName(entity: string, isOption: bool) =
