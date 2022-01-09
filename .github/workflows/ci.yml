@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: secret
+          POSTGRES_USER: db_user
+          POSTGRES_DB: sqlhydra_demo
+          PGPORT: 7432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: "5.0.401"
+
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes postgresql-client
+
+      - name: Setup database
+        env:
+          PGPASSWORD: secret
+          POSTGRES_USER: db_user
+          POSTGRES_DB: sqlhydra_demo
+          PGPORT: 7432
+        run: |
+          psql -v ON_ERROR_STOP=1 -h localhost -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c 'CREATE SCHEMA IF NOT EXISTS demo_stuff;'
+
+      - name: Run migrations
+        run: |
+          cp .env.github .env
+          make migrations
+
+      - name: dotnet restore
+        env:
+          DOTNET_NOLOGO: true
+        run: |
+          dotnet restore
+          dotnet tool restore
+
+      - name: Build
+        run: |
+          dotnet build --no-restore -warnaserror
