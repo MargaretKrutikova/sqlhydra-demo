@@ -19,6 +19,8 @@ jobs:
           POSTGRES_USER: db_user
           POSTGRES_DB: sqlhydra_demo
           PGPORT: 7432
+        ports:
+          - 7432:7432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -44,8 +46,6 @@ jobs:
           POSTGRES_USER: db_user
           POSTGRES_DB: sqlhydra_demo
           PGPORT: 7432
-      ports:
-        - 7432:7432
         run: |
           psql -v ON_ERROR_STOP=1 -h localhost -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c 'CREATE SCHEMA IF NOT EXISTS demo_stuff;'
 
