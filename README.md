@@ -23,7 +23,14 @@ The ability to instantly keep in sync your database schema and the source code i
 
 This demo project is using a `dotnet` tool [`SqlHydra.Npgsql`](https://github.com/JordanMarr/SqlHydra/#sqlhydranpgsql-) for type generation from a `postgres` database and a `NuGet` package [`SqlHydra.Query`](https://github.com/JordanMarr/SqlHydra/#sqlhydraquery-) for building `sql` queries using `F#` computation expressions and the generated types. The two packages are working in synergy and provide a light-weight data-access layer.
 
-Apart from `SqlHydra`, the project includes a full-blown setup for running database migrations with `rambler`, `Make` commands for building and running other nifty tasks and running everything in `docker` containers to show how to integrate `SqlHydra` in a real-world scenario. The database and schema are created when the `docker` container is spun up locally, see [running locally](#running-locally).
+Apart from `SqlHydra`, the project includes a full-blown setup for:
+
+- Running database migrations with `rambler`,
+- `Make` commands for building and running other nifty tasks,
+- Running everything in `docker` containers,
+- Running migrations and type generation in a `github` workflow,
+
+to show how to integrate `SqlHydra` in a real-world scenario. The database and schema are created when the `docker` container is spun up locally, see [running locally](#running-locally).
 
 The app itself is a console app consisting of the following files:
 
@@ -82,3 +89,11 @@ Let's make some changes to the db schema and see how to re-generate types:
 - observe compile-time errors 💥
 
 OBS: alternatively run `make bounce-migrations` to both revert all migrations and apply them again.
+
+## Github workflow
+
+There is a github workflow that makes sure the migrations are run without errors and the newly generated code compiles. The workflow will effectively fail if you add non-backwards compatible migrations or make non-backwards compatible changes and forget to re-generate the types.
+
+The workflow will setup [PostgreSQL service container](https://docs.github.com/en/actions/using-containerized-services/creating-postgresql-service-containers) with the appropriate port, database and account. Steps that follow will install `postgresql-client` to create the necessary schema, run migrations and build the code.
+
+Note the usage of [`.env.github`](./env.github) under `Run migrations` in the workflow to set `OS` env variable to `Linux` - this is necessary to download the right version of `rambler` on the github ci server.
