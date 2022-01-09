@@ -3,7 +3,7 @@
   "isRoot": true,
   "tools": {
     "sqlhydra.npgsql": {
-      "version": "0.610.1",
+      "version": "0.630.0",
       "commands": ["sqlhydra-npgsql"]
     }
   }
