@@ -94,6 +94,6 @@ OBS: alternatively run `make bounce-migrations` to both revert all migrations an
 
 There is a github workflow that makes sure the migrations are run without errors and the newly generated code compiles. The workflow will effectively fail if you add non-backwards compatible migrations or make non-backwards compatible changes and forget to re-generate the types.
 
-The workflow will setup [PostgreSQL service container](https://docs.github.com/en/actions/using-containerized-services/creating-postgresql-service-containers) with the appropriate port, database and account. Steps that follow will install `postgresql-client` to create the necessary schema, run migrations and build the code.
+The workflow will setup [PostgreSQL service container](https://docs.github.com/en/actions/using-containerized-services/creating-postgresql-service-containers) with the appropriate port, database and account. Steps that follow will run migrations and build the code.
 
 Note the usage of [`.env.github`](./env.github) under `Run migrations` in the workflow to set `OS` env variable to `Linux` - this is necessary to download the right version of `rambler` on the github ci server.
